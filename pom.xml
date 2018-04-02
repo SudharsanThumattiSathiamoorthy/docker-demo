@@ -83,7 +83,7 @@
                 <configuration>
                     <images>
                         <image>
-                            <name>docker-demo-it</name>
+                            <name>docker-demo</name>
                             <alias>docker-demo</alias>
 
                             <build>
@@ -104,20 +104,48 @@
 
                                 <from>openjdk:latest</from>
 
-                                <healthCheck>
-                                    <interval>1s</interval>
-                                    <timeout>5s</timeout>
-                                    <retries>6</retries>
-                                    <cmd>curl -f http://localhost:8080/actuator/health || exit 1</cmd>
-                                </healthCheck>
+                                <!--<healthCheck>-->
+                                    <!--<interval>10s</interval>-->
+                                    <!--<timeout>10s</timeout>-->
+                                    <!--<retries>6</retries>-->
+                                    <!--<cmd>curl -f http://localhost:8080/health || exit 1</cmd>-->
+                                <!--</healthCheck>-->
 
-                                <entryPoint>
-                                    <shell>
+                                <!--<entryPoint>-->
+                                    <!--<shell>-->
+                                        <!--echo "start executing"-->
+                                    <!--</shell>-->
+                                    <!--<shell>-->
+                                        <!--java -jar /opt/sudhar/docker-demo/docker-demo-${project.version}.jar-->
+                                    <!--</shell>-->
+                                    <!--<shell>-->
+                                        <!--echo "execution began"-->
+                                    <!--</shell>-->
+                                <!--</entryPoint>-->
+                                <runCmds>
+                                    <run>echo "start executing"</run>
+                                    <run>
                                         java -jar /opt/sudhar/docker-demo/docker-demo-${project.version}.jar
-                                    </shell>
-                                </entryPoint>
+                                    </run>
+                                    <run>echo "execution began"</run>
+
+                                </runCmds>
                             </build>
 
+                            <run>
+                                <privileged>true</privileged>
+                                <log><enabled>true</enabled></log>
+                                <ports>connector.port:8080</ports>
+                                <wait>
+                                    <!-- Build will fail if not healthy within 60 seconds -->
+                                    <time>60000</time>
+                                    <http>
+                                        <url>http://localhost:${connector.port}/actuator/health</url>
+                                        <method>GET</method>
+                                        <status>200</status>
+                                    </http>
+                                </wait>
+                            </run>
 
                         </image>
                     </images>
@@ -127,9 +155,12 @@
                 <executions>
                     <execution>
                         <id>build</id>
-                        <phase>install</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>build</goal>
+                            <goal>start</goal>
+                            <goal>logs</goal>
+                            <goal>stop</goal>
                         </goals>
                     </execution>
                 </executions>
