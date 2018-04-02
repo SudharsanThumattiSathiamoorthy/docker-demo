@@ -122,30 +122,30 @@
                                         <!--echo "execution began"-->
                                     <!--</shell>-->
                                 <!--</entryPoint>-->
-                                <runCmds>
-                                    <run>echo "start executing"</run>
-                                    <run>
-                                        java -jar /opt/sudhar/docker-demo/docker-demo-${project.version}.jar
-                                    </run>
-                                    <run>echo "execution began"</run>
+                                <!--<runCmds>-->
+                                    <!--<run>echo "start executing"</run>-->
+                                    <!--<run>-->
+                                        <!--java -jar /opt/sudhar/docker-demo/docker-demo-${project.version}.jar-->
+                                    <!--</run>-->
+                                    <!--<run>echo "execution began"</run>-->
 
-                                </runCmds>
+                                <!--</runCmds>-->
                             </build>
 
-                            <run>
-                                <privileged>true</privileged>
-                                <log><enabled>true</enabled></log>
-                                <ports>connector.port:8080</ports>
-                                <wait>
-                                    <!-- Build will fail if not healthy within 60 seconds -->
-                                    <time>60000</time>
-                                    <http>
-                                        <url>http://localhost:${connector.port}/actuator/health</url>
-                                        <method>GET</method>
-                                        <status>200</status>
-                                    </http>
-                                </wait>
-                            </run>
+                            <!--<run>-->
+                                <!--<privileged>true</privileged>-->
+                                <!--<log><enabled>true</enabled></log>-->
+                                <!--<ports>connector.port:8080</ports>-->
+                                <!--<wait>-->
+                                    <!--&lt;!&ndash; Build will fail if not healthy within 60 seconds &ndash;&gt;-->
+                                    <!--<time>60000</time>-->
+                                    <!--<http>-->
+                                        <!--<url>http://localhost:${connector.port}/actuator/health</url>-->
+                                        <!--<method>GET</method>-->
+                                        <!--<status>200</status>-->
+                                    <!--</http>-->
+                                <!--</wait>-->
+                            <!--</run>-->
 
                         </image>
                     </images>
@@ -159,7 +159,6 @@
                         <goals>
                             <goal>build</goal>
                             <goal>start</goal>
-                            <goal>logs</goal>
                             <goal>stop</goal>
                         </goals>
                     </execution>
