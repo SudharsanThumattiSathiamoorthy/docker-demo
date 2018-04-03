@@ -75,17 +75,130 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
+            <!--<plugin>-->
+                <!--<groupId>io.fabric8</groupId>-->
+                <!--<artifactId>docker-maven-plugin</artifactId>-->
+                <!--<version>0.23.0</version>-->
+
+                <!--<configuration>-->
+                    <!--<images>-->
+                        <!--<image>-->
+                            <!--<name>docker-demo</name>-->
+                            <!--<alias>docker-demo</alias>-->
+
+                            <!--<build>-->
+                                <!--<assembly>-->
+                                    <!--<inline>-->
+                                        <!--<dependencySets>-->
+                                            <!--<dependencySet>-->
+                                                <!--<useProjectArtifact>true</useProjectArtifact>-->
+                                                <!--<includes>-->
+                                                    <!--<include>com.example:docker-demo</include>-->
+                                                <!--</includes>-->
+                                            <!--</dependencySet>-->
+                                        <!--</dependencySets>-->
+                                    <!--</inline>-->
+
+                                    <!--<targetDir>/opt/sudhar/docker-demo</targetDir>-->
+                                <!--</assembly>-->
+
+                                <!--<from>openjdk:latest</from>-->
+
+                                <!--&lt;!&ndash;<healthCheck>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<interval>10s</interval>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<timeout>10s</timeout>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<retries>6</retries>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<cmd>curl -f http://localhost:8080/actuator/health || exit 1</cmd>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</healthCheck>&ndash;&gt;-->
+
+                                <!--<entryPoint>-->
+                                    <!--<shell>-->
+                                        <!--echo "start executing"-->
+                                    <!--</shell>-->
+                                    <!--<shell>-->
+                                        <!--java -jar /opt/sudhar/docker-demo/docker-demo-${project.version}.jar-->
+                                    <!--</shell>-->
+                                    <!--<shell>-->
+                                        <!--echo "execution began"-->
+                                    <!--</shell>-->
+                                <!--</entryPoint>-->
+
+
+                                <!--&lt;!&ndash;<runCmds>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<run>echo "start executing"</run>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<run>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;java -jar /opt/sudhar/docker-demo/docker-demo-${project.version}.jar&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</run>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<run>echo "execution began"</run>&ndash;&gt;-->
+
+                                <!--&lt;!&ndash;</runCmds>&ndash;&gt;-->
+                            <!--</build>-->
+
+                            <!--<run>-->
+                                <!--<privileged>true</privileged>-->
+                                <!--<log>-->
+                                    <!--<enabled>true</enabled>-->
+                                <!--</log>-->
+                                <!--<ports>connector.port:8080</ports>-->
+                                <!--<wait>-->
+                                    <!--&lt;!&ndash; Build will fail if not healthy within 60 seconds &ndash;&gt;-->
+                                    <!--<time>60000</time>-->
+                                    <!--<http>-->
+                                        <!--<url>http://localhost:${connector.port}/actuator/health</url>-->
+                                        <!--<method>GET</method>-->
+                                        <!--<status>200</status>-->
+                                    <!--</http>-->
+                                    <!--<healthy>true</healthy>-->
+                                <!--</wait>-->
+                            <!--</run>-->
+
+                        <!--</image>-->
+                    <!--</images>-->
+
+
+                <!--</configuration>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>build</id>-->
+                        <!--<phase>package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>build</goal>-->
+                            <!--<goal>start</goal>-->
+                            <!--<goal>stop</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+
+
+            <!--</plugin>-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             <plugin>
-                <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.23.0</version>
+                <groupId>io.fabric8</groupId>
 
                 <configuration>
                     <images>
                         <image>
                             <name>docker-demo</name>
                             <alias>docker-demo</alias>
-
                             <build>
                                 <assembly>
                                     <inline>
@@ -98,77 +211,62 @@
                                             </dependencySet>
                                         </dependencySets>
                                     </inline>
-
-                                    <targetDir>/opt/sudhar/docker-demo</targetDir>
+                                    <targetDir>/opt/vmware/docker-demo</targetDir>
                                 </assembly>
-
-                                <from>openjdk:latest</from>
-
-                                <!--<healthCheck>-->
-                                <!--<interval>10s</interval>-->
-                                <!--<timeout>10s</timeout>-->
-                                <!--<retries>6</retries>-->
-                                <!--<cmd>curl -f http://localhost:8080/health || exit 1</cmd>-->
-                                <!--</healthCheck>-->
-
-                                <!--<entryPoint>-->
-                                <!--<shell>-->
-                                <!--echo "start executing"-->
-                                <!--</shell>-->
-                                <!--<shell>-->
-                                <!--java -jar /opt/sudhar/docker-demo/docker-demo-${project.version}.jar-->
-                                <!--</shell>-->
-                                <!--<shell>-->
-                                <!--echo "execution began"-->
-                                <!--</shell>-->
-                                <!--</entryPoint>-->
-
-
-                                <runCmds>
-                                    <run>echo "start executing"</run>
-                                    <run>
-                                        java -jar /opt/sudhar/docker-demo/docker-demo-${project.version}.jar
-                                    </run>
-                                    <run>echo "execution began"</run>
-
-                                </runCmds>
+                                <from>openjdk:8-jdk-alpine</from>
+                                <workdir>/opt/vmware/api-gateway</workdir>
+                                <entryPoint>
+                                    <shell>
+                                        java -server -XX:+UnlockExperimentalVMOptions \
+                                        -Xss256k \
+                                        -XX:+UseCGroupMemoryLimitForHeap \
+                                        -XX:MaxRAMFraction=1 \
+                                        -jar /opt/vmware/docker-demo/docker-demo-${project.version}.jar
+                                    </shell>
+                                </entryPoint>
                             </build>
-
                             <run>
-                                <privileged>true</privileged>
-                                <log>
-                                    <enabled>true</enabled>
-                                </log>
-                                <ports>connector.port:8080</ports>
-                                <wait>
-                                    <!-- Build will fail if not healthy within 60 seconds -->
-                                    <time>60000</time>
-                                    <http>
-                                        <url>http://localhost:${connector.port}/actuator/health</url>
-                                        <method>GET</method>
-                                        <status>200</status>
-                                    </http>
-                                </wait>
+                                <memory>5600000</memory>
+                                <!--<ports>-->
+                                    <!--<port>api-gateway.port:8080</port>-->
+                                <!--</ports>-->
+                                <!--<wait>-->
+                                    <!--<time>20000</time>-->
+                                    <!--<tcp>-->
+                                        <!--<ports>-->
+                                            <!--<port>8080</port>-->
+                                        <!--</ports>-->
+                                    <!--</tcp>-->
+                                <!--</wait>-->
                             </run>
-
                         </image>
                     </images>
 
-
                 </configuration>
+
                 <executions>
                     <execution>
                         <id>build</id>
                         <phase>package</phase>
                         <goals>
                             <goal>build</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>start</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
                             <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <phase>post-integration-test</phase>
+                        <goals>
                             <goal>stop</goal>
+                            <goal>remove</goal>
                         </goals>
                     </execution>
                 </executions>
-
-
             </plugin>
         </plugins>
     </build>
