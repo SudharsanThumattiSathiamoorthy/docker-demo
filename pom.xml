@@ -6,7 +6,7 @@
 
     <groupId>com.example</groupId>
     <artifactId>docker-demo</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
     <name>docker-demo</name>
@@ -28,15 +28,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-consul-config</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-consul-discovery</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
@@ -49,254 +40,113 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.example</groupId>
-            <artifactId>docker-demo</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <profiles>
+        <profile>
+            <id>push-docker-image</id>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
+            <build>
+                    <plugins>
+                        <plugin>
+                            <!-- Build an executable JAR -->
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-jar-plugin</artifactId>
+                            <version>3.0.2</version>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-maven-plugin</artifactId>
+                        </plugin>
+                        <plugin>
+                            <groupId>io.fabric8</groupId>
+                            <artifactId>docker-maven-plugin</artifactId>
+                            <version>0.25.0</version>
 
-            <!--<plugin>-->
-                <!--<groupId>io.fabric8</groupId>-->
-                <!--<artifactId>docker-maven-plugin</artifactId>-->
-                <!--<version>0.23.0</version>-->
+                            <configuration>
+                                <registry>registry.hub.docker.com/sudharsanthumatti</registry>
 
-                <!--<configuration>-->
-                    <!--<images>-->
-                        <!--<image>-->
-                            <!--<name>docker-demo</name>-->
-                            <!--<alias>docker-demo</alias>-->
+                                <authConfig>
+                                    <username>YOUR_GIT_HUB_USERNAME</username>
+                                    <password>YOUR_GIT_HUB_PASSWORD></password>
+                                </authConfig>
 
-                            <!--<build>-->
-                                <!--<assembly>-->
-                                    <!--<inline>-->
-                                        <!--<dependencySets>-->
-                                            <!--<dependencySet>-->
-                                                <!--<useProjectArtifact>true</useProjectArtifact>-->
-                                                <!--<includes>-->
-                                                    <!--<include>com.example:docker-demo</include>-->
-                                                <!--</includes>-->
-                                            <!--</dependencySet>-->
-                                        <!--</dependencySets>-->
-                                    <!--</inline>-->
+                                <images>
+                                    <image>
+                                        <name>${project.artifactId}</name>
+                                        <alias>${project.artifactId}</alias>
 
-                                    <!--<targetDir>/opt/sudhar/docker-demo</targetDir>-->
-                                <!--</assembly>-->
+                                        <build>
+                                            <assembly>
+                                                <inline>
+                                                    <dependencySets>
+                                                        <dependencySet>
+                                                            <useProjectArtifact>true</useProjectArtifact>
+                                                            <includes>
+                                                                <include>com.example:${project.artifactId}</include>
+                                                            </includes>
+                                                        </dependencySet>
+                                                    </dependencySets>
+                                                </inline>
+                                                <targetDir>/opt/sudhar/docker</targetDir>
+                                            </assembly>
 
-                                <!--<from>openjdk:latest</from>-->
+                                            <from>openjdk:8u151-jre</from>
+                                            <workdir>/opt/sudhar/docker</workdir>
 
-                                <!--&lt;!&ndash;<healthCheck>&ndash;&gt;-->
-                                    <!--&lt;!&ndash;<interval>10s</interval>&ndash;&gt;-->
-                                    <!--&lt;!&ndash;<timeout>10s</timeout>&ndash;&gt;-->
-                                    <!--&lt;!&ndash;<retries>6</retries>&ndash;&gt;-->
-                                    <!--&lt;!&ndash;<cmd>curl -f http://localhost:8080/actuator/health || exit 1</cmd>&ndash;&gt;-->
-                                <!--&lt;!&ndash;</healthCheck>&ndash;&gt;-->
+                                            <healthCheck>
+                                                <interval>20s</interval>
+                                                <timeout>5s</timeout>
+                                                <retries>6</retries>
+                                                <cmd>curl -f http://localhost:8080/health || exit 1</cmd>
+                                            </healthCheck>
 
-                                <!--<entryPoint>-->
-                                    <!--<shell>-->
-                                        <!--echo "start executing"-->
-                                    <!--</shell>-->
-                                    <!--<shell>-->
-                                        <!--java -jar /opt/sudhar/docker-demo/docker-demo-${project.version}.jar-->
-                                    <!--</shell>-->
-                                    <!--<shell>-->
-                                        <!--echo "execution began"-->
-                                    <!--</shell>-->
-                                <!--</entryPoint>-->
+                                            <entryPoint>
+                                                <shell>ls -al /opt/sudhar/docker</shell>
+                                                <shell>
+                                                    java -server  \
+                                                    -XX:+UnlockExperimentalVMOptions \
+                                                    -XX:+UseCGroupMemoryLimitForHeap \
+                                                    -XX:MaxRAMFraction=1 \
+                                                    -XX:+HeapDumpOnOutOfMemoryError \
+                                                    -XX:HeapDumpPath=/tmp \
+                                                    -jar \
+                                                    ${project.artifactId}-${project.version}.jar
+                                                </shell>
+                                            </entryPoint>
+                                        </build>
+                                        <run>
+                                            <memory>5120000</memory>
+                                            <ports>
+                                                <port>172.17.0.2:8080:8080</port>
+                                            </ports>
+                                            <wait>
+                                                <time>30000</time>
+                                                <tcp>
+                                                    <ports>
+                                                        <port>8080</port>
+                                                    </ports>
+                                                </tcp>
+                                            </wait>
+                                        </run>
+                                    </image>
+                                </images>
+                            </configuration>
 
-
-                                <!--&lt;!&ndash;<runCmds>&ndash;&gt;-->
-                                    <!--&lt;!&ndash;<run>echo "start executing"</run>&ndash;&gt;-->
-                                    <!--&lt;!&ndash;<run>&ndash;&gt;-->
-                                        <!--&lt;!&ndash;java -jar /opt/sudhar/docker-demo/docker-demo-${project.version}.jar&ndash;&gt;-->
-                                    <!--&lt;!&ndash;</run>&ndash;&gt;-->
-                                    <!--&lt;!&ndash;<run>echo "execution began"</run>&ndash;&gt;-->
-
-                                <!--&lt;!&ndash;</runCmds>&ndash;&gt;-->
-                            <!--</build>-->
-
-                            <!--<run>-->
-                                <!--<privileged>true</privileged>-->
-                                <!--<log>-->
-                                    <!--<enabled>true</enabled>-->
-                                <!--</log>-->
-                                <!--<ports>connector.port:8080</ports>-->
-                                <!--<wait>-->
-                                    <!--&lt;!&ndash; Build will fail if not healthy within 60 seconds &ndash;&gt;-->
-                                    <!--<time>60000</time>-->
-                                    <!--<http>-->
-                                        <!--<url>http://localhost:${connector.port}/actuator/health</url>-->
-                                        <!--<method>GET</method>-->
-                                        <!--<status>200</status>-->
-                                    <!--</http>-->
-                                    <!--<healthy>true</healthy>-->
-                                <!--</wait>-->
-                            <!--</run>-->
-
-                        <!--</image>-->
-                    <!--</images>-->
-
-
-                <!--</configuration>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>build</id>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>build</goal>-->
-                            <!--<goal>start</goal>-->
-                            <!--<goal>stop</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-
-
-            <!--</plugin>-->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            <plugin>
-                <artifactId>docker-maven-plugin</artifactId>
-                <groupId>io.fabric8</groupId>
-
-                <configuration>
-                    <registry>registry.hub.docker.com/appplatform</registry>
-                    <authConfig>
-                        <username>appplatform</username>
-                        <password>dockerhub_8976</password>
-                    </authConfig>
-
-
-                    <images>
-                        <image>
-                            <name>docker-demo</name>
-                            <alias>docker-demo</alias>
-                            <build>
-                                <assembly>
-                                    <inline>
-                                        <dependencySets>
-                                            <dependencySet>
-                                                <useProjectArtifact>true</useProjectArtifact>
-                                                <includes>
-                                                    <include>com.example:docker-demo</include>
-                                                </includes>
-                                            </dependencySet>
-                                        </dependencySets>
-                                    </inline>
-                                    <targetDir>/opt/sudhar/docker-demo</targetDir>
-                                </assembly>
-                                <from>openjdk:8u151-jre</from>
-                                <workdir>/opt/sudhar/docker-demo</workdir>
-                                <entryPoint>
-                                    <shell>
-                                        java -server -XX:+UnlockExperimentalVMOptions \
-                                        -Xss256k \
-                                        -XX:+UseCGroupMemoryLimitForHeap \
-                                        -XX:MaxRAMFraction=1 \
-                                        -jar /opt/sudhar/docker-demo/docker-demo-${project.version}.jar \
-                                        --logging.level.com.example=DEBUG
-                                    </shell>
-                                </entryPoint>
-                            </build>
-                            <run>
-                                <memory>5600000</memory>
-                                <!--<ports>-->
-                                    <!--<port>172.17.0.1:8830:8080</port>-->
-                                <!--</ports>-->
-                                <!--<env>-->
-                                    <!--<SERVICE_8080_CHECK_HTTP>/health</SERVICE_8080_CHECK_HTTP>-->
-                                    <!--<SERVICE_NAME>docker-demo</SERVICE_NAME>-->
-                                <!--</env>-->
-                                <!--<wait>-->
-                                    <!--<time>300000</time>-->
-                                    <!--<tcp>-->
-                                        <!--<ports>-->
-                                            <!--<port>8080</port>-->
-                                        <!--</ports>-->
-                                    <!--</tcp>-->
-                                <!--</wait>-->
-                                <log>
-                                    <prefix>TC</prefix>
-                                    <date>default</date>
-                                    <color>cyan</color>
-                                </log>
-                            </run>
-                        </image>
-                    </images>
-
-                </configuration>
-
-                <executions>
-                    <execution>
-                        <id>build</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>start</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                            <goal>push</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
-    <repositories>
-        <repository>
-            <id>spring-milestones</id>
-            <name>Spring Milestones</name>
-            <url>https://repo.spring.io/milestone</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
+                            <executions>
+                                <execution>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>build</goal>
+                                        <goal>start</goal>
+                                        <goal>stop</goal>
+                                        <goal>push</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
