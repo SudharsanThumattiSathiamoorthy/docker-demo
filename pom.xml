@@ -98,7 +98,7 @@
                                                 <interval>20s</interval>
                                                 <timeout>5s</timeout>
                                                 <retries>6</retries>
-                                                <cmd>curl -f http://localhost:8080/health || exit 1</cmd>
+                                                <cmd>curl -f http://localhost:8080/ || exit 1</cmd>
                                             </healthCheck>
 
                                             <entryPoint>
@@ -116,12 +116,12 @@
                                             </entryPoint>
                                         </build>
                                         <run>
-                                            <memory>5120000</memory>
+                                            <memory>512000000</memory>
                                             <ports>
-                                                <port>172.17.0.2:8080:8080</port>
+                                                <port>172.17.0.1:8080:8080</port>
                                             </ports>
                                             <wait>
-                                                <time>30000</time>
+                                                <time>300000</time>
                                                 <tcp>
                                                     <ports>
                                                         <port>8080</port>
